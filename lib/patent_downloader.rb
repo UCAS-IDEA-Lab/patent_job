@@ -3,7 +3,7 @@ class PatentDownloader
     temp = Tempfile.new('patents')
     tempname = temp.path
     temp.close
-    Net::FTP.open('localhost', 'mfieldhouse', 'Nvidia%') do |ftp|
+    Net::FTP.open('localhost', 'user', 'password') do |ftp|
       ftp.getbinaryfile('test.csv', tempname)
     end
     tempname
