@@ -2,6 +2,7 @@ require 'active_record'
 require 'net/ftp'
 require 'csv'
 require 'pp'
+require 'patent_downloader'
 
 ActiveRecord::Base.establish_connection(
   :adapter => "sqlite3",
@@ -13,20 +14,16 @@ class Patent < ActiveRecord::Base
 end
 
 class PatentJob
-  def run
-    temp = download_file
-    rows = parse(temp)
-    update_patents(rows)
+  attr_reader :downloader 
+
+  def initialize(downloader = PatentDownloader.new)
+    @downloader = downloader
   end
 
-  def download_file
-    temp = Tempfile.new('patents')
-    tempname = temp.path
-    temp.close
-    Net::FTP.open('localhost', 'mfieldhouse', 'Nvidia%') do |ftp|
-      ftp.getbinaryfile('test.csv', tempname)
-    end
-    tempname
+  def run
+    temp = downloader.download_file
+    rows = parse(temp)
+    update_patents(rows)
   end
 
   def parse(temp)
